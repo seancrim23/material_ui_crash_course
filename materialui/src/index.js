@@ -10,6 +10,8 @@ import Functions from './pages/Functions/Functions';
 import Hosting from './pages/Hosting/Hosting';
 import ML from './pages/ML/ML';
 import Storage from './pages/Storage/Storage';
+import { ThemeProvider } from '@mui/material';
+import { dashboardTheme } from './dashboardTheme';
 
 const router = createBrowserRouter([
   {
@@ -46,9 +48,11 @@ const router = createBrowserRouter([
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  <React.StrictMode>
-    <RouterProvider router={router} />
-  </React.StrictMode>
+  <ThemeProvider theme={dashboardTheme}>
+    <React.StrictMode>
+      <RouterProvider router={router} />
+    </React.StrictMode>
+  </ThemeProvider>
 );
 
 // If you want to start measuring performance in your app, pass a function
