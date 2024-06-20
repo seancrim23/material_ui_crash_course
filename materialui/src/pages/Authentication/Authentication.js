@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import BasicCard from '../../components/common/BasicCard/BasicCard';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import SearchBar from '../../components/common/SearchBar/SearchBar';
@@ -8,26 +8,44 @@ import { cardHeaderStyles } from './styles';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
+import NewUserModal from '../../components/Modals/NewUserModal/NewUserModal';
 
 const Authentication = () => {
+    const [open, setOpen] = useState(false);
+    const [users, setUsers] = useState([]);
+    const [searchResults, setSearchResults] = useState(users);
 
-    const getSearchBar = () => {
-        const handleChange = (value) => {
-            console.log(value)
+    const getHeader = () => {
+        const handleSearch = (value) => {
+            filterData(value);
+        };
+
+        const filterData = (value) => {
+            const lowercasedValue = value.toLowerCase().trim();
+            if (lowercasedValue === '') setUsers(searchResults);
+            else {
+                const filteredData = searchResults.filter((item) => {
+                    return Object.keys(item).some((key) => 
+                        item[key].toString().toLowerCase().includes(lowercasedValue)
+                    );
+                });
+                setUsers(filteredData);
+            };
         };
 
         const addUser = () => {
-            console.log('click')
+            setOpen(true);
         };
+
         return (
             <Box sx={cardHeaderStyles.wrapper}>
-                <SearchBar 
+                <SearchBar
                     placeholder="Search by email address, phone number, or user UID"
-                    onChange={(event) => handleChange(event.target.value)}
+                    onChange={(event) => handleSearch(event.target.value)}
                     searchBarWidth='720px'
                 />
                 <Box>
-                    <CommonButton 
+                    <CommonButton
                         variant="contained"
                         onClick={addUser}
                         size="large"
@@ -43,18 +61,35 @@ const Authentication = () => {
         )
     }
 
+    const addNewUser = (data) => {
+        users.push({...data})
+        setOpen(false);
+    }
+
     const getContent = () => (
-        <Typography 
-            align="center"
-            sx={{ margin: '40px 16px', color: 'rgba(0, 0, 0, 0.6)', fontSize: '1.3rem'}}
-        >
-            No users for this project yet
-        </Typography>
+        <>
+            {users.length ?
+                users.map((user) => (
+                    <Box key={user.userId}>
+                        <Typography>{user.userId}</Typography>
+                        <Typography>{user.email}</Typography>
+                        <Typography>{user.phoneNumber}</Typography>
+                    </Box>
+                ))
+                : <Typography
+                    align="center"
+                    sx={{ margin: '40px 16px', color: 'rgba(0, 0, 0, 0.6)', fontSize: '1.3rem' }}
+                >
+                    No users for this project yet
+                </Typography>
+            }
+        </>
     );
 
     return (
         <GridWrapper>
-            <BasicCard header={getSearchBar()} content={getContent()} />
+            <BasicCard header={getHeader()} content={getContent()} />
+            <NewUserModal open={open} onClose={() => setOpen(false)} addNewUser={addNewUser} />
         </GridWrapper>
     )
 }
